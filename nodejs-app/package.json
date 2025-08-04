@@ -1,0 +1,41 @@
+{
+  "name": "scrapper-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "start": "node dist/server.js",
+    "start:worker": "node dist/workers/crawler-worker.js",
+    "start:producer": "node dist/producers/enqueue-jobs.js",
+    "start:dbworker": "node dist/workers/database-worker.js",
+    "dev:worker": "ts-node src/workers/crawler-worker.ts",
+    "dev:producer": "ts-node src/producers/enqueue-jobs.ts",
+    "dev:dbworker": "ts-node src/workers/database-worker.ts",
+    "dev:clear-queue": "ts-node src/maintenance/clear-queues.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.2",
+    "axios": "^1.10.0",
+    "bullmq": "^5.56.4",
+    "cheerio": "^1.1.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.6.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "p-limit": "^6.2.0",
+    "pg": "^8.16.2"
+  }
+}
