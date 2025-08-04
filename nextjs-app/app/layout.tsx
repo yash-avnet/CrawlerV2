@@ -9,6 +9,9 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Crawler App",
+  icons: {
+    icon: "/avnet_cropped.png",
+  },
   description: "",
 };
 

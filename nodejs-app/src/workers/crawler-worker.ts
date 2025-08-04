@@ -22,6 +22,18 @@ const crawlerWorker = createCrawlWorker(async (job: Job) => {
     const productData = await crawlProduct(mpn, 'USD');
     const endedAt = new Date();
 
+    if (!productData) {
+        console.warn(`[SKIPPED] MPN: ${mpn} - No valid product found.`);
+        await saveCrawlLog({
+            crawlId,
+            mpn,
+            status: 'skipped',
+            startedAt,
+            endedAt,
+        });
+        return;
+    }
+
     await saveCrawlLog({
         crawlId,
         mpn,

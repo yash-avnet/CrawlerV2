@@ -101,7 +101,7 @@ export async function saveCrawlLog({
 }: {
   crawlId: string;
   mpn: string;
-  status: "success" | "failed";
+  status: "success" | "failed" | "skipped";
   startedAt: Date;
   endedAt: Date;
   error?: string;

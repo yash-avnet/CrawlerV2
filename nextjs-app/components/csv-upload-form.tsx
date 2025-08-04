@@ -53,6 +53,10 @@ export function CsvUploadForm() {
       });
 
       setMessage(res.data.message || "Crawl started successfully.");
+      setFile(null); // Clear the file after successful upload
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (error: any) {
       setMessage(`Upload failed: ${error.response?.data?.error || error.message}`);
     } finally {

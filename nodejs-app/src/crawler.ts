@@ -41,7 +41,7 @@ async function fetchProductHtml(url: string, mpn: string): Promise<string> {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                timeout: 20000,
+                timeout: 30000,
             }
         );
 
@@ -120,20 +120,21 @@ function parseProductHtml(mpn: string, url: string, html: string): ProductInfo {
 }
 
 // Main entry function
-export async function crawlProduct(mpn: string, currency: string): Promise<ProductInfo> {
+export async function crawlProduct(mpn: string, currency: string): Promise<ProductInfo | null> {
     const url = `https://octopart.com/search?q=${encodeURIComponent(mpn)}&currency=${currency}`;
 
     try {
         const html = await fetchProductHtml(url, mpn);
         const productData = parseProductHtml(mpn, url, html);
 
+        const {title, brand, medianPrice, distributors} = productData;
+        if (!title && !brand && !medianPrice && !distributors) {
+            return null;
+        }
+
         return productData;
     } catch (error: any) {
         console.error(`[ERROR] Failed to crawl product ${mpn}:`, error.message);
-        return {
-            mpn,
-            url,
-            error: error.message,
-        };
+        throw new Error(error.message);
     }
 }
