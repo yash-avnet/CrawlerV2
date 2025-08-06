@@ -65,7 +65,7 @@ export function CsvUploadForm() {
   };
 
   return (
-    <div className="border p-7 rounded-lg shadow-sm bg-card">
+    <div className="border p-7 rounded-lg shadow-sm bg-card w-[450px] h-full">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-md font-medium mb-2">
@@ -75,7 +75,7 @@ export function CsvUploadForm() {
           {!file ? (
             <div
               {...getRootProps()}
-              className={`p-6 border-2 border-dashed rounded-md cursor-pointer transition-colors ${isDragActive ? "border-green-500" : "border-border"
+              className={`p-8 border-2 border-dashed rounded-md cursor-pointer transition-colors ${isDragActive ? "border-green-500" : "border-border"
                 } bg-background`}
             >
               <input {...getInputProps()} />
@@ -84,8 +84,8 @@ export function CsvUploadForm() {
               </p>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-2.5 border rounded-md bg-background">
-              <span className="text-sm truncate font-medium">{file.name}</span>
+            <div className="flex items-center justify-between p-3 border rounded-md bg-background">
+              <span className="text-lg truncate font-medium">{file.name}</span>
               <button
                 type="button"
                 onClick={handleRemoveFile}

@@ -10,10 +10,11 @@ export async function AuthButton() {
   const { data } = await supabase.auth.getClaims();
 
   const user = data?.claims;
+  console.log("User claims:", user);
 
   return user ? (
     <div className="flex items-center gap-4 [&>*]:text-lg">
-      <p>Hey, {user.email}!</p>
+      <p>Hey, {user.user_metadata.full_name}!</p>
       <Button variant={"outline"}>
         <Link href="/protected">Go to Crawler</Link>
       </Button>
