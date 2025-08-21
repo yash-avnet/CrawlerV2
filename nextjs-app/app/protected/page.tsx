@@ -11,8 +11,8 @@ export default async function ProtectedPage() {
   }
 
   return (
-    <div className="flex-1 w-full flex flex-col items-center">
-      <div className="w-full max-w-2xl px-6 space-y-6">
+    <div className="flex-1 w-full flex flex-col items-center justify-center">
+      <div className="w-full max-w-2xl px-6 space-y-6 mb-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Crawler Dashboard</h1>
           <p className="text-muted-foreground mt-2">

@@ -2,18 +2,20 @@ import { supabase } from "./supabaseClient";
 import { ProductInfo } from "./interface";
 
 export async function saveProductsToDB(products: ProductInfo[]): Promise<void> {
-  console.log(`\n[DB] Saving ${products.length} products to database...`);
+  console.log(`[DB] Saving ${products.length} products to database...`);
 
   if (products.length === 0) return;
 
   try {
     const now = new Date().toISOString();
     const productRows = products.map((p) => ({
+      crawl_id: p.crawlId,
       mpn: p.mpn,
       title: p.title,
       brand: p.brand,
       median_price: p.medianPrice,
       created_at: now,
+      distributors_count: p.distributors?.length || 0,
     }));
 
     const { data: insertedProducts, error: insertError } = await supabase
@@ -49,6 +51,8 @@ export async function saveProductsToDB(products: ProductInfo[]): Promise<void> {
       if (!p.distributors) return [];
 
       return p.distributors.map((dist) => ({
+        crawl_id: p.crawlId,
+        mpn: p.mpn,
         product_id: productId,
         name: dist.name,
         sku: dist.sku,

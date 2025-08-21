@@ -25,29 +25,27 @@ const ThemeSwitcher = () => {
     return null;
   }
 
-  const ICON_SIZE = 16;
+  const ICON_SIZE = 20;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={"sm"}>
+        <Button variant="outline" className="text-muted-foreground border-[#545454] border rounded-lg select-none">
+          <div>Change Theme </div>
           {theme === "light" ? (
             <Sun
               key="light"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className={""}
             />
           ) : theme === "dark" ? (
             <Moon
               key="dark"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className={""}
             />
           ) : (
             <Laptop
               key="system"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className={""}
             />
           )}
         </Button>

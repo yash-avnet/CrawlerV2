@@ -4,7 +4,7 @@ import csv from "csv-parser";
 
 /**
  * Reads MPNs from a CSV file.
- * Expects the CSV to have a column named "mpn".
+ * Accepts column "mpn" in any case (mpn, MPN, Mpn, etc.).
  * @param filePath - Absolute path to the CSV file
  * @returns Array of MPN strings
  */
@@ -15,8 +15,15 @@ export async function readMPNfromfile(filePath: string): Promise<string[]> {
     fs.createReadStream(path.resolve(filePath))
       .pipe(csv())
       .on("data", (row) => {
-        if (row.mpn && typeof row.mpn === "string") {
-          const value = row.mpn.trim();
+        // Normalize all keys to lowercase for easier matching
+        const normalizedRow: Record<string, any> = {};
+        for (const key in row) {
+          normalizedRow[key.toLowerCase()] = row[key];
+        }
+
+        const mpnValue = normalizedRow["mpn"];
+        if (mpnValue && typeof mpnValue === "string") {
+          const value = mpnValue.trim();
           if (value.length > 0) {
             mpns.push(value);
           }

@@ -1,29 +1,28 @@
-// src/workers/crawler-worker.ts
 import { Job } from 'bullmq';
-import { randomUUID } from 'crypto'
 import { createCrawlWorker, resultsQueue } from '../queue';
 import { crawlProduct } from '../crawler';
 import { saveCrawlLog } from '../db';
 import { ProductInfo } from '../interface';
+import { supabaseAdmin } from "../supabaseClient";
 
 console.log('Crawler worker is running and waiting for jobs...');
 
 const crawlerWorker = createCrawlWorker(async (job: Job) => {
-    const mpn = job.data.mpn;
+    const { mpn, batchId: crawlId, currency } = job.data;
     const startedAt = new Date();
-    const crawlId = randomUUID();
+
+    // Flip status to in_progress if still pending
+    await supabaseAdmin.rpc("set_batch_in_progress",{
+        batch_id: crawlId
+    });
+
     console.log(`\nProcessing MPN: ${mpn} (Crawl ID: ${crawlId})`);
 
-    // 1. Attach the crawlId back to the job object in the queue.
-    // This makes it available later if the job fails.
-    await job.updateData({ ...job.data, crawlId });
-
-    // 2. Crawl and log the product.
-    const productData = await crawlProduct(mpn, 'USD');
+    // Crawl and log the product.
+    const productData = await crawlProduct(mpn, currency);
     const endedAt = new Date();
 
     if (!productData) {
-        console.warn(`[SKIPPED] MPN: ${mpn} - No valid product found.`);
         await saveCrawlLog({
             crawlId,
             mpn,
@@ -31,32 +30,47 @@ const crawlerWorker = createCrawlWorker(async (job: Job) => {
             startedAt,
             endedAt,
         });
-        return;
+
+        // NEW: increment skipped counter in crawl_batches
+        await supabaseAdmin.rpc("increment_crawl_batch_count", {
+            batch_id: crawlId,
+            status: "skipped",
+        });
+
+
+        console.warn(`[SKIPPED] MPN: ${mpn} - No valid product found.`);
     }
 
-    await saveCrawlLog({
-        crawlId,
-        mpn,
-        status: 'success',
-        startedAt,
-        endedAt,
-        distributorCount: productData.distributors?.length ?? 0,
-    });
+    else {
+        // On success, add the result to the 'results-queue'.
+        const resultPayload: ProductInfo = { ...productData, crawlId };
+        await resultsQueue.add('save-result', resultPayload);
 
-    // 3. On success, add the result to the 'results-queue'.
-    const resultPayload: ProductInfo = { ...productData, crawlId };
-    await resultsQueue.add('save-result', resultPayload);
+        await saveCrawlLog({
+            crawlId,
+            mpn,
+            status: 'success',
+            startedAt,
+            endedAt,
+            distributorCount: productData.distributors?.length ?? 0,
+        });
 
-    console.log(`Successfully crawled MPN: ${mpn}. Result passed to DB worker.`);
+        // NEW: increment success counter
+        await supabaseAdmin.rpc("increment_crawl_batch_count", {
+            batch_id: crawlId,
+            status: "success",
+        });
+
+        console.log(`Successfully crawled MPN: ${mpn}. Result passed to DB worker.`);
+    }
 });
 
-// This event fires only after a job has failed all of its retry attempts.
-crawlerWorker.on('failed', async (job, error) => {
+crawlerWorker.on("failed", async (job, error) => {
     if (job) {
-        const { mpn, crawlId } = job.data;
-
-        if (mpn) {
-            console.error(`Job ${job.id} for MPN ${mpn} failed after retries: ${error.message}`);
+        const { mpn, batchId: crawlId } = job.data;
+        // Run only if it's the last attempt
+        if (job.attemptsMade === job.opts.attempts) {
+            console.error(`Job ${job.id} for MPN ${job.data.mpn} failed permanently: ${error.message}`);
 
             const startedAt = job.processedOn ? new Date(job.processedOn) : new Date();
             const endedAt = job.finishedOn ? new Date(job.finishedOn) : new Date();
@@ -69,6 +83,15 @@ crawlerWorker.on('failed', async (job, error) => {
                 endedAt,
                 error: error.message,
             });
+
+            // NEW: increment failed counter
+            await supabaseAdmin.rpc("increment_crawl_batch_count", {
+                batch_id: crawlId,
+                status: "failed",
+            });
+
+        } else {
+            console.warn(`Job ${job.id} for MPN ${job.data.mpn} failed attempt ${job.attemptsMade}, retrying...`);
         }
     } else {
         console.error(`A job failed, but the job data was undefined. Error: ${error.message}`);

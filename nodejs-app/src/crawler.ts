@@ -40,8 +40,7 @@ async function fetchProductHtml(url: string, mpn: string): Promise<string> {
                 },
                 headers: {
                     "Content-Type": "application/json",
-                },
-                timeout: 30000,
+                }
             }
         );
 
@@ -59,7 +58,7 @@ async function fetchProductHtml(url: string, mpn: string): Promise<string> {
 
 // Parse Cheerio HTML and extract product details
 function parseProductHtml(mpn: string, url: string, html: string): ProductInfo {
-    console.log(`\n[INFO] Parsing HTML for product : ${mpn}`);
+    console.log(`[INFO] Parsing HTML for product : ${mpn}`);
 
     const $ = cheerio.load(html);
 
@@ -128,13 +127,12 @@ export async function crawlProduct(mpn: string, currency: string): Promise<Produ
         const productData = parseProductHtml(mpn, url, html);
 
         const {title, brand, medianPrice, distributors} = productData;
-        if (!title && !brand && !medianPrice && !distributors) {
+        if (!title && !brand && !medianPrice && (!distributors || distributors.length === 0)) {
             return null;
         }
 
         return productData;
     } catch (error: any) {
-        console.error(`[ERROR] Failed to crawl product ${mpn}:`, error.message);
         throw new Error(error.message);
     }
 }

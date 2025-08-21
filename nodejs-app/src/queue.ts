@@ -1,4 +1,3 @@
-// src/queue.ts
 import { Queue, Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import dotenv from 'dotenv';
@@ -30,6 +29,8 @@ export const crawlQueue = new Queue(CRAWL_QUEUE_NAME, {
       type: 'exponential',
       delay: 5000,
     },
+    removeOnComplete: true,
+    removeOnFail: true,
   },
 });
 
@@ -42,6 +43,8 @@ export const resultsQueue = new Queue<ProductInfo>(RESULTS_QUEUE_NAME, {
       type: 'exponential',
       delay: 10000,
     },
+    removeOnComplete: true,
+    removeOnFail: true,
   },
 });
 
@@ -65,22 +68,22 @@ export const createCrawlWorker = (processor: (job: Job) => Promise<void>) => {
   );
 };
 
-/**
- * Create a worker to process result-saving jobs.
- * Handles jobs where job.name === 'save-result'.
- */
-export const createResultsWorker = (processor: (job: Job<ProductInfo>) => Promise<void>) => {
-  return new Worker(
-    RESULTS_QUEUE_NAME,
-    async (job: Job<ProductInfo>) => {
-      if (job.name !== 'save-result') {
-        throw new Error(`Unexpected job name: ${job.name}`);
-      }
-      await processor(job);
-    },
-    {
-      connection,
-      concurrency: 2, // Tune concurrency separately if needed
-    }
-  );
-};
+// /**
+//  * Create a worker to process result-saving jobs.
+//  * Handles jobs where job.name === 'save-result'.
+//  */
+// export const createResultsWorker = (processor: (job: Job<ProductInfo>) => Promise<void>) => {
+//   return new Worker(
+//     RESULTS_QUEUE_NAME,
+//     async (job: Job<ProductInfo>) => {
+//       if (job.name !== 'save-result') {
+//         throw new Error(`Unexpected job name: ${job.name}`);
+//       }
+//       await processor(job);
+//     },
+//     {
+//       connection,
+//       concurrency: 2, // Tune concurrency separately if needed
+//     }
+//   );
+// };
