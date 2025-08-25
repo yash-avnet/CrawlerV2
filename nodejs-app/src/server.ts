@@ -2,8 +2,7 @@ import express from "express";
 import cors from 'cors';
 import dotenv from "dotenv";
 import startCrawlRouter from "./api/start-crawl";
-import statusRouter from "./api/status";
-// import resultsRouter from "./api/results";
+import batchesRouter from "./api/batches";
 
 dotenv.config();
 
@@ -16,8 +15,7 @@ app.use(cors());
 
 // API Routes
 app.use("/api/start-crawl", startCrawlRouter);
-app.use("/api/status", statusRouter);
-// app.use("/api/results", resultsRouter);
+app.use("/api/batches", batchesRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running at PORT: ${PORT}`);
