@@ -13,34 +13,35 @@ if (!ZYTE_API_KEY) {
 }
 
 // Get HTML from Zyte
-async function fetchProductHtml(url: string, mpn: string): Promise<string> {
+export async function fetchProductHtml(url: string, mpn: string): Promise<string> {
     try {
-        console.log(`[INFO] Fetching HTML data for product : ${mpn}`);
+        console.log(`[INFO] Fetching HTML data for product: ${mpn}`);
+
         const response = await axios.post(
             "https://api.zyte.com/v1/extract",
             {
                 url,
                 browserHtml: true,
-                javascript: false,
+                javascript: true,
+                httpResponseBody: false,
                 actions: [
                     {
-                        action: 'click',
+                        action: "click",
                         selector: {
                             type: "css",
-                            value: '[data-testid="show-all-button"]'
+                            value: 'button[data-testid="show-all-button"]',
                         },
-                        delay: Math.floor(Math.random() * 2) + 1
                     },
                 ],
             },
             {
                 auth: {
                     username: ZYTE_API_KEY,
-                    password: "", // Only username (API Key) is required
+                    password: "", // API key goes in username only
                 },
                 headers: {
                     "Content-Type": "application/json",
-                }
+                },
             }
         );
 
@@ -126,7 +127,7 @@ export async function crawlProduct(mpn: string, currency: string): Promise<Produ
         const html = await fetchProductHtml(url, mpn);
         const productData = parseProductHtml(mpn, url, html);
 
-        const {title, brand, medianPrice, distributors} = productData;
+        const { title, brand, medianPrice, distributors } = productData;
         if (!title && !brand && !medianPrice && (!distributors || distributors.length === 0)) {
             return null;
         }
