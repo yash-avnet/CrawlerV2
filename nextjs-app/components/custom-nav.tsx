@@ -7,7 +7,7 @@ import { AuthButton } from "@/components/auth-button";
 function Nav() {
   return (
     <nav className="w-full flex justify-center border-b border-b-foreground/20">
-      <div className="w-full max-w-5xl flex justify-between items-center px-5 py-2 text-sm">
+      <div className="w-full max-w-6xl flex justify-between items-center py-2">
         <div className="flex flex-col font-serif font-bold text-lg items-center">
           <Link href="/">
             <Image

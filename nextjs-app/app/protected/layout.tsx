@@ -11,7 +11,7 @@ export default function ProtectedLayout({
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col gap-[5px] items-center">
         <Nav />
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-6">
+        <div className="flex-1 flex flex-col gap-20 max-w-6xl p-6">
           {children}
         </div>
         <footer className="w-full flex items-center justify-center gap-x-10 border-t border-t-foreground/20 mx-auto text-center text-xs py-4">

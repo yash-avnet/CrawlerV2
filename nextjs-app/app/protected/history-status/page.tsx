@@ -19,10 +19,11 @@ type Batch = {
   skipped_count: number;
 };
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 export default function BatchesPage() {
   const supabase = createClient();
+
   const [batches, setBatches] = useState<Batch[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -49,11 +50,16 @@ export default function BatchesPage() {
     const from = (page - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     let supabaseQuery = supabase
       .from("crawl_batches")
       .select("*", { count: "exact" })
       .order("uploaded_at", { ascending: false })
-      .range(from, to);
+      .range(from, to)
+      .eq("created_by", user?.id);
 
     if (query.trim() !== "") {
       supabaseQuery = supabaseQuery.ilike("request_name", `%${query.trim()}%`);

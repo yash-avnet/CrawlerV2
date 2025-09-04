@@ -26,12 +26,24 @@ export async function fetchProductHtml(url: string, mpn: string): Promise<string
                 httpResponseBody: false,
                 actions: [
                     {
-                        action: "click",
-                        selector: {
-                            type: "css",
-                            value: 'button[data-testid="show-all-button"]',
-                        },
+                        action: "waitForSelector",
+                        selector: { type: "css", value: 'button[data-testid="show-all-button"]', state: "visible" },
+                        timeout: 7,
                     },
+                    {
+                        action: "click",
+                        selector: { type: "css", value: 'button[data-testid="show-all-button"]' },
+                    },
+                    // {
+                    //     action: "waitForSelector",
+                    //     selector: { type: "css", value: 'button[data-testid="show-all-button"]', state: "hidden" },
+                    //     timeout: 8,
+                    // },
+                    // {
+                    //     action: "waitForSelector",
+                    //     selector: { type: "css", value: '[data-testid="supplier-offers-list"] li', state: "visible" },
+                    //     timeout: 8,
+                    // },
                 ],
             },
             {
