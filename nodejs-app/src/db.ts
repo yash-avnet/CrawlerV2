@@ -19,7 +19,7 @@ export async function saveProductsToDB(products: ProductInfo[]): Promise<void> {
     }));
 
     const { data: insertedProducts, error: insertError } = await supabase
-      .from("products")
+      .from("product_c")
       .insert(productRows)
       .select("id, mpn, title, brand, median_price");
 
